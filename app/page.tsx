@@ -1,0 +1,139 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { MeetingPackage } from "@/types";
+import { Hero } from "@/components/landing/hero";
+import { MeetingInput } from "@/components/input/meeting-input";
+import { ResultsDisplay } from "@/components/results/results-display";
+import { Card } from "@/components/ui/card";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+
+/**
+ * Main page component for AdvisorFlow AI.
+ *
+ * Manages client-side state for:
+ * - User meeting notes input
+ * - Loading state during API call
+ * - Generated meeting package results
+ * - Error messages
+ *
+ * All data lives in memory only; nothing is persisted to a database.
+ */
+export default function HomePage() {
+  const [meetingNotes, setMeetingNotes] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [meetingPackage, setMeetingPackage] = useState<MeetingPackage | null>(
+    null
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerate = useCallback(async (notes: string) => {
+    setError(null);
+    setMeetingNotes(notes);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ meetingNotes: notes }),
+        // 30 second timeout
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(
+          errorBody.error || `API request failed with status ${response.status}`
+        );
+      }
+
+      const data: MeetingPackage = await response.json();
+      setMeetingPackage(data);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "TimeoutError") {
+        setError(
+          "The request timed out. Please try again with shorter meeting notes."
+        );
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+      setMeetingPackage(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handleReset = () => {
+    setMeetingPackage(null);
+    setError(null);
+    setMeetingNotes("");
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Hero />
+
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Input Card */}
+        <Card className="mb-8">
+          <MeetingInput
+            onGenerate={handleGenerate}
+            isLoading={isLoading}
+          />
+        </Card>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-100 text-red-800 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <div>
+              <h3 className="font-semibold">Error</h3>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto text-red-600 hover:underline text-sm font-medium"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Results Card */}
+        {meetingPackage && (
+          <Card>
+            <ResultsDisplay package={meetingPackage} />
+          </Card>
+        )}
+
+        {/* Empty state hint */}
+        {!meetingPackage && !error && (
+          <div className="mt-8 flex items-center justify-center py-12 text-gray-400">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              <p>
+                Ready to generate. Paste meeting notes above and click
+                <span className="font-semibold">Generate Meeting Package</span>.
+              </p>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+            <Loader2 className="h-6 w-6 animate-spin text-accent" />
+            <p className="text-primary font-medium">Generating your meeting package…</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
