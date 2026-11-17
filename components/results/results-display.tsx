@@ -3,6 +3,7 @@
 import { MeetingPackage } from "@/types";
 import { SectionCard } from "@/components/results/section-card";
 import { CopyExportButtons } from "@/components/results/copy-export-buttons";
+import { ScoreCard } from "@/components/results/score-card";
 import {
   User,
   MessageCircle,
@@ -119,6 +120,9 @@ export function ResultsDisplay({ package: pkg }: ResultsDisplayProps) {
         </div>
         <CopyExportButtons package={pkg} />
       </div>
+
+      {/* AdvisorFlow Score - Prominent differentiator */}
+      <ScoreCard package={pkg} />
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sections.map((section) => (

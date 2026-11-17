@@ -85,6 +85,9 @@ export async function POST(request: Request) {
       "popiaConsentItems",
       "complianceDisclosure",
       "regulatoryReferences",
+      "complianceScore",
+      "complianceIssues",
+      "recommendedActions",
     ];
 
     for (const field of requiredFields) {

@@ -66,6 +66,15 @@ export function CopyExportButtons({ package: pkg }: CopyExportButtonsProps) {
       "REGULATORY REFERENCES",
       "---------------------",
       ...pkg.regulatoryReferences.map((r) => `• ${r}`),
+      "",
+      "ADVISORFLOW COMPLIANCE SCORE",
+      "==============================",
+      `Score: ${pkg.complianceScore} / 100`,
+      "ISSUES IDENTIFIED:",
+      ...pkg.complianceIssues.map((i) => `• ${i}`),
+      "",
+      "RECOMMENDED ACTIONS:",
+      ...pkg.recommendedActions.map((a) => `• ${a}`),
     ].join("\n");
 
     await navigator.clipboard.writeText(text);

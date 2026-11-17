@@ -18,6 +18,10 @@ export interface MeetingPackage {
   popiaConsentItems: string[];
   complianceDisclosure: string;
   regulatoryReferences: string[];
+  /* AdvisorFlow Score - the sticky differentiator */
+  complianceScore: number;
+  complianceIssues: string[];
+  recommendedActions: string[];
 }
 
 /**

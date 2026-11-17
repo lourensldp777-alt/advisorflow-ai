@@ -36,10 +36,22 @@ OUTPUT SCHEMA (return exactly these fields):
   "faisRecordOfAdvice": "A structured summary suitable for inclusion in a FAIS Record of Advice, noting client circumstances and products discussed",
   "popiaConsentItems": ["POPIA consent item to obtain", "POPIA consent item to obtain", ...],
   "complianceDisclosure": "Summary of regulatory disclosures required under FAIS/FICA for this client meeting",
-  "regulatoryReferences": ["FAIS Act 37 of 2002", "FIC Act 38 of 2001", ...]
+  "regulatoryReferences": ["FAIS Act 37 of 2002", "FIC Act 38 of 2001", ...],
+  "complianceScore": 85,
+  "complianceIssues": ["Beneficiary review required", "Spouse has no valid will", "FICA documentation outstanding"],
+  "recommendedActions": ["Update FICA documents", "Draft will for spouse", "Review beneficiary nominations"]
 }
 
 If a section has no content, return an empty array for lists or an empty string for text fields.
+
+SCORING GUIDELINES:
+- complianceScore: 0-100 based on how complete and compliant the meeting documentation appears
+- 90-100: Fully documented, minor gaps
+- 70-89: Adequate, some items outstanding
+- 50-69: Significant compliance gaps
+- Below 50: Major documentation failures
+- complianceIssues: Specific, actionable issues flagged from the meeting notes
+- recommendedActions: Concrete steps the adviser should take to resolve each issue
 `;
 
 export function buildUserPrompt(meetingNotes: string): string {
