@@ -26,13 +26,13 @@ Need updated FICA documents.`;
 interface MeetingInputProps {
   onGenerate: (notes: string) => void;
   isLoading: boolean;
-  trialExpired?: boolean;
+  creditsAvailable?: number;
 }
 
 export function MeetingInput({
   onGenerate,
   isLoading,
-  trialExpired = false,
+  creditsAvailable = 0,
 }: MeetingInputProps) {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
@@ -41,8 +41,8 @@ export function MeetingInput({
     e.preventDefault();
     setError("");
 
-    if (trialExpired) {
-      setError("Free trial credits used. Purchase credits to continue.");
+    if (creditsAvailable <= 0) {
+      setError("No credits available. Purchase credits to continue.");
       return;
     }
 
@@ -110,10 +110,10 @@ export function MeetingInput({
               variant="default"
               size="lg"
               loading={isLoading}
-              disabled={isLoading || trialExpired}
+              disabled={isLoading || creditsAvailable <= 0}
               className="flex-1"
             >
-              {trialExpired ? "Trial Expired — Buy Credits" : "Generate Meeting Package"}
+              {creditsAvailable <= 0 ? "Buy Credits" : "Generate Meeting Package"}
             </Button>
           </div>
         </form>

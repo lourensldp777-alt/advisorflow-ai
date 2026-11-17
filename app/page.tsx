@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { MeetingPackage } from "@/types";
 import { Hero } from "@/components/landing/hero";
 import { TrialBanner } from "@/components/landing/trial-banner";
+import { CreditsBanner } from "@/components/landing/credits-banner";
 import { MeetingInput } from "@/components/input/meeting-input";
 import { ResultsDisplay } from "@/components/results/results-display";
 import { Card } from "@/components/ui/card";
@@ -29,19 +30,29 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [trialReportsRemaining, setTrialReportsRemaining] = useState(5);
   const [trialExpired, setTrialExpired] = useState(false);
+  const [purchasedCredits, setPurchasedCredits] = useState(0);
 
   useEffect(() => {
+    // Load persisted trial count from localStorage
     const saved = localStorage.getItem("advisorflow_trial_remaining");
     if (saved !== null) {
       const remaining = parseInt(saved, 10) || 5;
       setTrialReportsRemaining(remaining);
       setTrialExpired(remaining <= 0);
     }
+
+    // Load purchased credits from localStorage
+    const purchased = localStorage.getItem("advisorflow_credits");
+    if (purchased !== null) {
+      setPurchasedCredits(parseInt(purchased, 10) || 0);
+    }
   }, []);
 
+  const totalCreditsAvailable = trialReportsRemaining + purchasedCredits;
+
   const handleGenerate = useCallback(async (notes: string) => {
-    if (trialExpired) {
-      setError("Free trial credits used. Purchase credits to continue.");
+    if (totalCreditsAvailable <= 0) {
+      setError("No credits available. Purchase credits to continue.");
       return;
     }
 
@@ -70,11 +81,20 @@ export default function HomePage() {
       const data: MeetingPackage = await response.json();
       setMeetingPackage(data);
 
-      // Decrement trial credit on successful generation
-      const next = Math.max(0, trialReportsRemaining - 1);
-      setTrialReportsRemaining(next);
-      setTrialExpired(next <= 0);
-      localStorage.setItem("advisorflow_trial_remaining", String(next));
+      // Decrement credits: purchased credits first, then trial credits
+      if (purchasedCredits > 0) {
+        const nextPurchased = purchasedCredits - 1;
+        setPurchasedCredits(nextPurchased);
+        localStorage.setItem("advisorflow_credits", String(nextPurchased));
+      } else {
+        const nextTrial = Math.max(0, trialReportsRemaining - 1);
+        setTrialReportsRemaining(nextTrial);
+        setTrialExpired(nextTrial <= 0);
+        localStorage.setItem(
+          "advisorflow_trial_remaining",
+          String(nextTrial)
+        );
+      }
     } catch (err) {
       if (err instanceof DOMException && err.name === "TimeoutError") {
         setError(
@@ -92,10 +112,8 @@ export default function HomePage() {
   }, []);
 
   const handlePurchase = () => {
-    // Placeholder for payment integration (PayFast / Peach Payments / Stripe)
-    alert(
-      "Purchase credits: Please contact support@advisorflow.ai or R50 per report via EFT."
-    );
+    // Redirect to checkout for PayFast payment
+    window.location.href = "/checkout";
   };
 
   const handleReset = () => {
@@ -122,12 +140,15 @@ export default function HomePage() {
           <span className="text-gray-400">Session only • Cleared on refresh</span>
         </div>
 
+        {/* Credits Banner */}
+        <CreditsBanner />
+
         {/* Input Card */}
         <Card className="mb-8">
           <MeetingInput
             onGenerate={handleGenerate}
             isLoading={isLoading}
-            trialExpired={trialExpired}
+            creditsAvailable={totalCreditsAvailable}
           />
         </Card>
 
@@ -156,7 +177,7 @@ export default function HomePage() {
         )}
 
         {/* Empty state hint */}
-        {!meetingPackage && !error && !trialExpired && (
+        {!meetingPackage && !error && totalCreditsAvailable > 0 && (
           <div className="mt-8 flex items-center justify-center py-12 text-gray-400">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />

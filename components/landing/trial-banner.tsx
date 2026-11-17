@@ -26,12 +26,6 @@ export function TrialBanner({
     }
   }, [remaining]);
 
-  const decrement = () => {
-    const next = Math.max(0, reportsRemaining - 1);
-    setReportsRemaining(next);
-    localStorage.setItem("advisorflow_trial_remaining", String(next));
-  };
-
   return reportsRemaining > 0 ? (
     <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200 flex items-center gap-3">
       <Rocket className="h-5 w-5 text-blue-600 shrink-0" />
@@ -53,7 +47,13 @@ export function TrialBanner({
           generating FAIS-compliant meeting packages.
         </p>
       </div>
-      <Button variant="accent" onClick={onPurchase} size="sm">
+      <Button
+        variant="accent"
+        size="sm"
+        onClick={() => {
+          window.location.href = "/checkout";
+        }}
+      >
         Buy Credits
       </Button>
     </div>
