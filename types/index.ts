@@ -1,6 +1,6 @@
 /**
  * TypeScript interfaces for AdvisorFlow AI Meeting Package.
- * These types define the structured output returned by the OpenAI API.
+ * South African IFA edition — includes FAIS, FICA, POPIA, Pension Act and Wills Act compliance fields.
  */
 
 export interface MeetingPackage {
@@ -12,6 +12,12 @@ export interface MeetingPackage {
   riskFlags: string[];
   recommendedNextSteps: string[];
   followUpEmail: string;
+  /* South African compliance additions */
+  ficaDocumentChecklist: string[];
+  faisRecordOfAdvice: string;
+  popiaConsentItems: string[];
+  complianceDisclosure: string;
+  regulatoryReferences: string[];
 }
 
 /**

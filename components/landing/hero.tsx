@@ -1,4 +1,4 @@
-import { Sparkles, ShieldCheck, TrendingUp } from "lucide-react";
+import { Sparkles, ShieldCheck, TrendingUp, FileCheck, ShieldAlert } from "lucide-react";
 
 export function Hero() {
   return (
@@ -17,23 +17,28 @@ export function Hero() {
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-bold leading-tight mb-8">
-          Reduce Financial Advisory Admin by{" "}
-          <span className="text-accent">80%</span>
+          FAIS-Compliant Meeting Packages for{" "}
+          <span className="text-accent">South African IFAs</span>
         </h1>
 
         <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Turn meeting notes into client-ready follow-ups, advisor action lists
-          and CRM summaries in seconds.
+          Turn client meeting notes into FAIS Record of Advice summaries, FICA
+          document checklists, POPIA consent items and follow-up emails in
+          seconds — not hours.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-gray-400">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-accent" />
-            <span>Compliant-aware summarisation</span>
+            <span>FAIS • FICA • POPIA compliant</span>
           </div>
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-accent" />
+            <FileCheck className="h-4 w-4 text-accent" />
             <span>No client data stored</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4 text-accent" />
+            <span>Pay per report — no subscription</span>
           </div>
         </div>
       </div>

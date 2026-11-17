@@ -12,6 +12,10 @@ import {
   AlertTriangle,
   ArrowRight,
   Mail,
+  ShieldCheck,
+  ShieldAlert,
+  FileCheck,
+  BookOpen,
 } from "lucide-react";
 
 interface ResultsDisplayProps {
@@ -71,6 +75,36 @@ export function ResultsDisplay({ package: pkg }: ResultsDisplayProps) {
       icon: <Mail className="h-5 w-5" />,
       type: "email" as const,
       content: pkg.followUpEmail,
+    },
+    {
+      title: "FICA Document Checklist",
+      icon: <FileCheck className="h-5 w-5" />,
+      type: "list" as const,
+      items: pkg.ficaDocumentChecklist,
+    },
+    {
+      title: "FAIS Record of Advice",
+      icon: <ShieldCheck className="h-5 w-5" />,
+      type: "text" as const,
+      content: pkg.faisRecordOfAdvice,
+    },
+    {
+      title: "POPIA Consent Items",
+      icon: <ShieldAlert className="h-5 w-5" />,
+      type: "list" as const,
+      items: pkg.popiaConsentItems,
+    },
+    {
+      title: "Compliance Disclosure",
+      icon: <FileText className="h-5 w-5" />,
+      type: "text" as const,
+      content: pkg.complianceDisclosure,
+    },
+    {
+      title: "Regulatory References",
+      icon: <BookOpen className="h-5 w-5" />,
+      type: "list" as const,
+      items: pkg.regulatoryReferences,
     },
   ];
 

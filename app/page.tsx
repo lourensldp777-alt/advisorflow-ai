@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { MeetingPackage } from "@/types";
 import { Hero } from "@/components/landing/hero";
+import { TrialBanner } from "@/components/landing/trial-banner";
 import { MeetingInput } from "@/components/input/meeting-input";
 import { ResultsDisplay } from "@/components/results/results-display";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2, ShieldCheck } from "lucide-react";
 
 /**
  * Main page component for AdvisorFlow AI.
@@ -26,8 +27,24 @@ export default function HomePage() {
     null
   );
   const [error, setError] = useState<string | null>(null);
+  const [trialReportsRemaining, setTrialReportsRemaining] = useState(5);
+  const [trialExpired, setTrialExpired] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("advisorflow_trial_remaining");
+    if (saved !== null) {
+      const remaining = parseInt(saved, 10) || 5;
+      setTrialReportsRemaining(remaining);
+      setTrialExpired(remaining <= 0);
+    }
+  }, []);
 
   const handleGenerate = useCallback(async (notes: string) => {
+    if (trialExpired) {
+      setError("Free trial credits used. Purchase credits to continue.");
+      return;
+    }
+
     setError(null);
     setMeetingNotes(notes);
     setIsLoading(true);
@@ -52,6 +69,12 @@ export default function HomePage() {
 
       const data: MeetingPackage = await response.json();
       setMeetingPackage(data);
+
+      // Decrement trial credit on successful generation
+      const next = Math.max(0, trialReportsRemaining - 1);
+      setTrialReportsRemaining(next);
+      setTrialExpired(next <= 0);
+      localStorage.setItem("advisorflow_trial_remaining", String(next));
     } catch (err) {
       if (err instanceof DOMException && err.name === "TimeoutError") {
         setError(
@@ -68,6 +91,13 @@ export default function HomePage() {
     }
   }, []);
 
+  const handlePurchase = () => {
+    // Placeholder for payment integration (PayFast / Peach Payments / Stripe)
+    alert(
+      "Purchase credits: Please contact support@advisorflow.ai or R50 per report via EFT."
+    );
+  };
+
   const handleReset = () => {
     setMeetingPackage(null);
     setError(null);
@@ -79,11 +109,25 @@ export default function HomePage() {
       <Hero />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Trial Banner */}
+        <TrialBanner
+          onPurchase={handlePurchase}
+          remaining={trialReportsRemaining}
+        />
+
+        {/* Privacy Badge */}
+        <div className="mb-6 flex items-center justify-between px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm text-gray-600">
+          <ShieldCheck className="h-4 w-4 mr-2 text-accent" />
+          <span className="font-medium">POPIA-compliant — no client data stored</span>
+          <span className="text-gray-400">Session only • Cleared on refresh</span>
+        </div>
+
         {/* Input Card */}
         <Card className="mb-8">
           <MeetingInput
             onGenerate={handleGenerate}
             isLoading={isLoading}
+            trialExpired={trialExpired}
           />
         </Card>
 
@@ -112,7 +156,7 @@ export default function HomePage() {
         )}
 
         {/* Empty state hint */}
-        {!meetingPackage && !error && (
+        {!meetingPackage && !error && !trialExpired && (
           <div className="mt-8 flex items-center justify-center py-12 text-gray-400">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
@@ -130,7 +174,9 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
             <Loader2 className="h-6 w-6 animate-spin text-accent" />
-            <p className="text-primary font-medium">Generating your meeting package…</p>
+            <p className="text-primary font-medium">
+              Generating your FAIS-compliant meeting package…
+            </p>
           </div>
         </div>
       )}

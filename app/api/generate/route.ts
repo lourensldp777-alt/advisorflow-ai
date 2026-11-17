@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate required fields exist
+    // Validate required fields exist (including South African compliance fields)
     const requiredFields: (keyof MeetingPackage)[] = [
       "clientSummary",
       "keyDiscussionPoints",
@@ -80,6 +80,11 @@ export async function POST(request: Request) {
       "riskFlags",
       "recommendedNextSteps",
       "followUpEmail",
+      "ficaDocumentChecklist",
+      "faisRecordOfAdvice",
+      "popiaConsentItems",
+      "complianceDisclosure",
+      "regulatoryReferences",
     ];
 
     for (const field of requiredFields) {

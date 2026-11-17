@@ -26,15 +26,25 @@ Need updated FICA documents.`;
 interface MeetingInputProps {
   onGenerate: (notes: string) => void;
   isLoading: boolean;
+  trialExpired?: boolean;
 }
 
-export function MeetingInput({ onGenerate, isLoading }: MeetingInputProps) {
+export function MeetingInput({
+  onGenerate,
+  isLoading,
+  trialExpired = false,
+}: MeetingInputProps) {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (trialExpired) {
+      setError("Free trial credits used. Purchase credits to continue.");
+      return;
+    }
 
     if (!notes.trim()) {
       setError("Please enter meeting notes before generating.");
@@ -100,10 +110,10 @@ export function MeetingInput({ onGenerate, isLoading }: MeetingInputProps) {
               variant="default"
               size="lg"
               loading={isLoading}
-              disabled={isLoading}
+              disabled={isLoading || trialExpired}
               className="flex-1"
             >
-              Generate Meeting Package
+              {trialExpired ? "Trial Expired — Buy Credits" : "Generate Meeting Package"}
             </Button>
           </div>
         </form>
